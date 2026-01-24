@@ -1,27 +1,19 @@
-import React from 'react'
-import { Users } from 'lucide-react'
-import { Activity } from 'lucide-react'
-import { Droplet } from 'lucide-react'
-import { CircleAlert } from 'lucide-react'
+import React from "react";
 
-const RightCard = (props) => {
-    const LucideIcon = props.icon
+const RightCard = ({ icon: Icon, title, count, color }) => {
   return (
-    <div className=' bg-white w-70 rounded-lg p-7 shadow-lg'>
-        <div className=' flex items-center justify-between'>
-            <div className=' space-y-2'>
-                <p className=' text-sm text-gray-500'>{props.title}</p>
-                <h2 className=' font-bold text-3xl'>{props.count}</h2>
-            </div>
-            <div className={ `shadow-xl w-fit p-4 rounded-2xl text-white ${props.color}`}>
-                <LucideIcon size={20} />
-            </div>
+    <div className="bg-white rounded-lg p-6 shadow-lg w-full">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <p className="text-sm text-gray-500">{title}</p>
+          <h2 className="font-bold text-3xl">{count}</h2>
         </div>
-        <div>
-
+        <div className={`p-4 rounded-2xl text-white shadow-xl ${color}`}>
+          <Icon size={20} />
         </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default RightCard
+export default RightCard;
