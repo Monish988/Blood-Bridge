@@ -1,61 +1,76 @@
-import React from 'react'
-import { User } from "lucide-react";
-import { Mail } from 'lucide-react';
-import { Phone } from 'lucide-react';
-import { MapPin } from 'lucide-react';
-import { CircleCheckBig } from 'lucide-react';
-import { Eye } from 'lucide-react';
-const DonorItem = () => {
+import React from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  CircleCheckBig,
+  Eye,
+} from "lucide-react";
+
+const DonorItem = (props) => {
   return (
-    <div className=' bg-white p-2 rounded-lg shadow grid grid-cols-6 items-center gap-4 hover:bg-gray-50 '>
-        {/* DONOR */}
-        <div className=' flex items-center gap-3'>
-            <div className=' rounded-full bg-red-500 w-fit shadow p-3 text-white'>
-                <User size={20}/>
-            </div>
-            <div className=' flex flex-col items-start'>
-                <h3 className=' font-semibold leading-[1.2] text-base'>John Smith</h3>
-                <p className=' text-sm text-gray-500'>Male</p>
-            </div>
+    <div className="
+      bg-white
+      p-4
+      rounded-lg
+      hover:bg-gray-50
+      grid
+      grid-cols-1
+      gap-4
+      shadow
+      lg:grid-cols-6
+      lg:items-center
+    ">
+      {/* DONOR */}
+      <div className="flex items-center gap-3">
+        <div className="rounded-full bg-red-500 p-3 text-white">
+          <User size={18} />
         </div>
-
-        {/* BLOOD GROUP */}
-        <div className=' text-center bg-blue-100 text-blue-600 w-fit py-2 px-4 rounded-2xl'>
-            <h3 className=' font-bold'>O+</h3>
+        <div>
+          <h3 className="font-semibold">{props.name}</h3>
+          <p className="text-sm text-gray-500">{props.sex}</p>
         </div>
+      </div>
 
-        {/* CONTACT */}
-        <div className=' text-gray-500'>
-            <div className='   flex space-y-1 items-center gap-3 text-base'>
-                <Mail size={14}/>
-                <p>john.smith@email.com</p>
-            </div>
-            <div className=' flex items-center gap-2 text-base'>
-                <Phone size={14} />
-                <p>+1 234 567 8901</p>
+      {/* BLOOD */}
+      <div className="bg-blue-100 text-blue-600 w-fit px-4 py-2 rounded-2xl font-bold">
+        O+
+      </div>
 
-            </div>
+      {/* CONTACT */}
+      <div className="text-gray-500 text-base space-y-1">
+        <div className="flex items-center gap-2">
+          <Mail size={14} />
+          <p>{props.mail}</p>
         </div>
-
-        {/* LOCATION */}
-        <div className=' text-gray-500 flex items-center gap-2 text-base'>
-            <MapPin size={14} />
-            <p>123 Main St, USA</p>
+        <div className="flex items-center gap-2">
+          <Phone size={14} />
+          <p>{props.phone}</p>
         </div>
+      </div>
 
-        {/* STATUS */}
-        <div className=' flex items-center gap-1 bg-gray-200 w-fit py-2 px-4 rounded-lg text-gray-600 text-sm'>
-            <CircleCheckBig size={14}/>
-            <p>Unavailable</p>
-        </div>
+      {/* LOCATION */}
+      <div className="flex items-center gap-2 text-base text-gray-500">
+        <MapPin size={14} />
+        <p>{props.location}</p>
+      </div>
 
-        {/* Actions */}
-        <div className=' flex items-center gap-7 font-medium text-base'>
-            <Eye size={18} />
-            <p className=' bg-white rounded-lg cursor-pointer shadow border border-gray-100 py-2 px-4'>Mark Available</p>
-        </div>
+      {/* STATUS */}
+      <div className="flex items-center gap-2 bg-gray-200 px-4 py-2 rounded-lg text-base text-gray-600 w-fit">
+        <CircleCheckBig size={14} />
+        {props.status}
+      </div>
+
+      {/* ACTIONS */}
+      <div className="flex items-center justify-between lg:justify-start gap-7">
+        <Eye size={18} />
+        <button className=" border cursor-pointer border-gray-500 px-4 py-2 rounded-lg text-base">
+          Mark Available
+        </button>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default DonorItem
+export default DonorItem;

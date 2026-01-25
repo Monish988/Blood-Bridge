@@ -4,7 +4,7 @@ import React from "react";
 
 const navItems = [
   { label: "Dashboard", path: "/" },
-  { label: "Donors", path: "/donor" },
+  { label: "Donors", path: "/donors" },
   { label: "Hospitals", path: "/hospitals" },
   { label: "Inventory", path: "/inventory" },
   { label: "Blood Requests", path: "/requests" },
@@ -13,7 +13,8 @@ const navItems = [
 
 const Left = () => {
   return (
-    <div className="
+    <div
+      className="
       w-full
       lg:w-1/5
       min-h-screen
@@ -21,7 +22,8 @@ const Left = () => {
       bg-white
       flex
       flex-col
-    ">
+    "
+    >
       {/* TOP */}
       <div className="flex items-center gap-4 py-6 border-b border-gray-200">
         <div className="shadow-xl text-white bg-red-500 p-3 rounded-2xl">

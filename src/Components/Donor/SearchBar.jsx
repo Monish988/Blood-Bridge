@@ -1,32 +1,37 @@
 import React, { useState } from "react";
 import { Search } from "lucide-react";
+
 const SearchBar = () => {
   const [searchVal, setSearchVal] = useState("");
-  const bloodGroups = ['A+','A-','AB+','AB-','O+','O-','B+','B-']
+  const bloodGroups = ["A+", "A-", "AB+", "AB-", "O+", "O-", "B+", "B-"];
+
   return (
-    <div className=" flex gap-3 items-center bg-white shadow w-full p-4 rounded-lg ">
-      <div className=" border flex-1 focus-within:ring-1 focus-within:  border-gray-200 text-gray-500 p-3 rounded-lg  flex gap-3">
+    <div className="flex flex-col lg:flex-row gap-3 bg-white shadow w-full p-4 rounded-lg">
+      
+      {/* SEARCH INPUT */}
+      <div className="border flex-1 border-gray-200 text-gray-500 p-3 rounded-lg flex gap-3">
         <Search />
         <input
-          onChange={(e) => {
-            setSearchVal(e.target.value);
-          }}
-          className=" w-full outline-none bg-white"
-          type="text"
-          placeholder="Search by name, email, or city.."
-        ></input>
+          value={searchVal}
+          onChange={(e) => setSearchVal(e.target.value)}
+          className="w-full outline-none"
+          placeholder="Search by name, email, or city..."
+        />
       </div>
-      <div className=" flex gap-3">
-        <div className=" border border-gray-200 text-gray-500 p-3 rounded-lg ">
-          <select>
+
+      {/* FILTERS */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="border border-gray-200 p-3 rounded-lg">
+          <select className="w-full">
             <option>All Groups</option>
-            {bloodGroups.map((elem)=>{
-                return <option>{elem}</option>
-            })}
+            {bloodGroups.map(bg => (
+              <option key={bg}>{bg}</option>
+            ))}
           </select>
         </div>
-        <div className=" border border-gray-200 text-gray-500 p-3 rounded-lg ">
-          <select>
+
+        <div className="border border-gray-200 p-3 rounded-lg">
+          <select className="w-full">
             <option>All Status</option>
             <option>Available</option>
             <option>Unavailable</option>
