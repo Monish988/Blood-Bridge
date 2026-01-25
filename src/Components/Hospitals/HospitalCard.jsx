@@ -4,7 +4,7 @@ import { CircleCheckBig,Mail,Phone,MapPin,SquarePen,Trash2 } from 'lucide-react'
 const HospitalCard = (props) => {
     console.log(props)
   return (
-    <div className=' bg-white w-lg rounded-lg py-4 px-6 shadow-md'>
+    <div className=' bg-white w-130 rounded-lg py-4 px-6 shadow-md'>
         {/* SECTION 1 */}
         <div className=' py-4  flex gap-3'>
             <div className=' flex items-center text-white bg-blue-500 w-fit px-4 py-1  rounded-xl'>

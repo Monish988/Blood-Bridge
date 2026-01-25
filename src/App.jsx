@@ -8,6 +8,7 @@ import Layout from './Layout'
 import donors from './donor'
 import Hospital from './Components/Hospitals/Hospital'
 import { hospitals } from './hospitals'
+import Inventory from './Components/Inventory/Inventory'
 
  const App = () => {
   return (
@@ -18,6 +19,7 @@ import { hospitals } from './hospitals'
       <Route path='/' element={<DashBoard/>}/>
       <Route path='/donors' element={<Donor props = {donors} />}/>
       <Route path='/hospitals' element={<Hospital props={hospitals}/>}/>
+      <Route path='/inventory' element={<Inventory/>}/>
     </Routes>
     </div>
   )

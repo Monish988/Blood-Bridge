@@ -10,6 +10,8 @@ const Hospital = (props) => {
       className="
       flex-1
       bg-gray-100
+      max-h-screen
+      overflow-y-scroll
       px-4 sm:px-6 lg:px-9
       py-6
       space-y-8 
@@ -36,10 +38,11 @@ const Hospital = (props) => {
       </div>
 
       {/* BOTTOM */}
-      <div className=" flex gap-5 flex-wrap overflow-y-hidden"> 
+      <div className=" flex gap-14 flex-wrap py-2"> 
         {data.map((elem,idx)=>{
-          return <HospitalCard name={elem.name} email={elem.email} phone={elem.phone} city={elem.city} license={elem.license} verified={elem.verified} />
+          return <HospitalCard key={idx} name={elem.name} email={elem.email} phone={elem.phone} city={elem.city} license={elem.license} verified={elem.verified} />
         })}
+    
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ const Left = () => {
     <div
       className="
       w-full
-      lg:w-1/5
+      lg:w-1/6
       min-h-screen
       px-6
       bg-white
