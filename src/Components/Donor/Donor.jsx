@@ -42,18 +42,18 @@ const Donor = (props) => {
       {/* TOP */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h2 className="font-bold text-2xl">Donors</h2>
-          <p className="text-sm text-gray-400">
+          <h2  className="font-bold text-3xl">Donors</h2>
+          <p className="text-base text-gray-400">
             Manage registered blood donors
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-xs bg-green-200 py-1 px-2 rounded-lg text-green-600 flex gap-1 items-center">
+          <div className="text-sm bg-green-200 py-1 px-2 rounded-lg text-green-600 flex gap-1 items-center">
             <Users size={16} />
             <p>6 total</p>
           </div>
-          <div className="text-xs bg-blue-200 py-1 px-2 rounded-lg text-blue-600">
+          <div className="text-sm bg-blue-200 py-1 px-2 rounded-lg text-blue-600">
             <p>4 Available</p>
           </div>
         </div>

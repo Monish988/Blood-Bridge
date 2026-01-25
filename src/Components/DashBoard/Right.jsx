@@ -20,8 +20,8 @@ const Right = () => {
     ">
       {/* SECTION 1 */}
       <div>
-        <h2 className="font-bold text-2xl">Dashboard</h2>
-        <p className="text-sm text-gray-400">
+        <h2 className="font-bold text-3xl">Dashboard</h2>
+        <p className="text-base text-gray-400">
           Real-time overview of blood bank operations
         </p>
       </div>
@@ -42,8 +42,8 @@ const Right = () => {
 
       {/* SECTION 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg h-80 shadow-lg" />
-        <div className="bg-white rounded-lg h-80 shadow-lg" />
+        <div className="bg-white rounded-lg h-100 shadow-lg" />
+        <div className="bg-white rounded-lg h-100 shadow-lg" />
       </div>
 
       {/* SECTION 4 */}

@@ -6,6 +6,8 @@ import { Routes } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 import Layout from './Layout'
 import donors from './donor'
+import Hospital from './Components/Hospitals/Hospital'
+import { hospitals } from './hospitals'
 
  const App = () => {
   return (
@@ -15,6 +17,7 @@ import donors from './donor'
       <Route element={Layout}/>
       <Route path='/' element={<DashBoard/>}/>
       <Route path='/donors' element={<Donor props = {donors} />}/>
+      <Route path='/hospitals' element={<Hospital props={hospitals}/>}/>
     </Routes>
     </div>
   )
