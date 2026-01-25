@@ -1,11 +1,34 @@
-import React from "react";
+import React, { useEffect, useState ,useMemo } from "react";
 import SearchBar from "./SearchBar";
-import { Users } from "lucide-react";
+import { CircleCheckBig, Users } from "lucide-react";
+import { CircleX } from "lucide-react";
 import DonorItem from "./DonorItem";
 import donors from "../../donor";
 
+
 const Donor = (props) => {
   const data = props.props;
+  const [search, setSearch] = useState("");
+  const [group, setGroup] = useState("");
+  const [status, setStatus] = useState("");
+
+  const filteredDonors = useMemo(() => {
+    return donors.filter(donor => {
+      const matchesSearch =
+        donor.name.toLowerCase().includes(search.toLowerCase()) ||
+        donor.email.toLowerCase().includes(search.toLowerCase()) ||
+        donor.location.toLowerCase().includes(search.toLowerCase());
+
+      const matchesGroup =
+        group === "" || donor.bloodGroup === group;
+
+      const matchesStatus =
+        status === "" || donor.status === status;
+
+      return matchesSearch && matchesGroup && matchesStatus;
+    });
+  }, [search, group, status]);
+  
   return (
     <div
       className="
@@ -37,7 +60,7 @@ const Donor = (props) => {
       </div>
 
       {/* SEARCH */}
-      <SearchBar />
+      <SearchBar search={search} setSearch={setSearch} group={group} setGroup={setGroup} status={status} setStatus={setStatus} />
 
       {/* TABLE HEADER (desktop only) */}
       <div className="hidden lg:grid grid-cols-6 gap-4 font-semibold text-gray-500 border-b pb-2">
@@ -51,9 +74,9 @@ const Donor = (props) => {
 
       {/* LIST */}
       <div className=" space-y-1">
-        {data.map((data) => {
+        {filteredDonors.map((data) => {
           return (
-            <DonorItem name={data.name} sex={data.gender} BG={data.bloodGroup} mail={data.email} phone={data.phone} status={data.status} location={data.location}  />
+            <DonorItem key={data.id} name={data.name} sex={data.gender} BG={data.bloodGroup} mail={data.email} phone={data.phone} status={data.status} location={data.location} icon = {(data.status=='Available')?CircleCheckBig:CircleX}  />
           );
         })}
       </div>

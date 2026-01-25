@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   User,
   Mail,
@@ -6,11 +6,28 @@ import {
   MapPin,
   CircleCheckBig,
   Eye,
+  CircleX,
 } from "lucide-react";
 
 const DonorItem = (props) => {
+  const CheckIcon = props.icon;
+  const bloodGroupStyles = {
+    "A+": "bg-red-100 text-red-600",
+    "A-": "bg-red-200 text-red-700",
+    "B+": "bg-blue-100 text-blue-600",
+    "B-": "bg-blue-200 text-blue-700",
+    "AB+": "bg-purple-100 text-purple-600",
+    "AB-": "bg-purple-200 text-purple-700",
+    "O+": "bg-green-100 text-green-600",
+    "O-": "bg-green-200 text-green-700",
+  };
+  const bgClass = bloodGroupStyles[props.BG] || "bg-blue-100 text-gray-600";
+
+ 
+
   return (
-    <div className="
+    <div
+      className="
       bg-white
       p-4
       rounded-lg
@@ -21,7 +38,8 @@ const DonorItem = (props) => {
       shadow
       lg:grid-cols-6
       lg:items-center
-    ">
+    "
+    >
       {/* DONOR */}
       <div className="flex items-center gap-3">
         <div className="rounded-full bg-red-500 p-3 text-white">
@@ -34,8 +52,8 @@ const DonorItem = (props) => {
       </div>
 
       {/* BLOOD */}
-      <div className="bg-blue-100 text-blue-600 w-fit px-4 py-2 rounded-2xl font-bold">
-        O+
+      <div className={`${bgClass}  w-fit px-4 py-2 rounded-2xl font-bold`}>
+        {props.BG}
       </div>
 
       {/* CONTACT */}
@@ -57,8 +75,10 @@ const DonorItem = (props) => {
       </div>
 
       {/* STATUS */}
-      <div className="flex items-center gap-2 bg-gray-200 px-4 py-2 rounded-lg text-base text-gray-600 w-fit">
-        <CircleCheckBig size={14} />
+      <div
+        className={`flex items-center gap-2 ${props.status == "Available" ? "bg-green-200 text-green-700" : "bg-gray-300"} px-3 py-1 rounded-lg text-sm text-gray-700 w-fit`}
+      >
+        <CheckIcon size={14} />
         {props.status}
       </div>
 
