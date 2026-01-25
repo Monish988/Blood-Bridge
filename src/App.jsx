@@ -9,6 +9,7 @@ import donors from './donor'
 import Hospital from './Components/Hospitals/Hospital'
 import { hospitals } from './hospitals'
 import Inventory from './Components/Inventory/Inventory'
+import Request from './Components/BloodRequests/Request'
 
  const App = () => {
   return (
@@ -20,6 +21,7 @@ import Inventory from './Components/Inventory/Inventory'
       <Route path='/donors' element={<Donor props = {donors} />}/>
       <Route path='/hospitals' element={<Hospital props={hospitals}/>}/>
       <Route path='/inventory' element={<Inventory/>}/>
+      <Route path='/requests' element={<Request/>}/>
     </Routes>
     </div>
   )
