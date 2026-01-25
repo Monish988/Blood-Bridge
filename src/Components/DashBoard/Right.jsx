@@ -12,8 +12,7 @@ import {
 const Right = () => {
   return (
     <div className="
-      w-full
-      lg:w-4/5
+       flex-1
       bg-gray-100
       px-4 sm:px-6 lg:px-9
       py-6
