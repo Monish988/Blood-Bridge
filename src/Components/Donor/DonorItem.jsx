@@ -23,21 +23,19 @@ const DonorItem = (props) => {
   };
   const bgClass = bloodGroupStyles[props.BG] || "bg-blue-100 text-gray-600";
 
- 
-
   return (
     <div
       className="
       bg-white
       p-4
       rounded-lg
-      hover:bg-gray-50
       grid
       grid-cols-1
       gap-4
       shadow
       lg:grid-cols-6
       lg:items-center
+      
     "
     >
       {/* DONOR */}
@@ -60,7 +58,7 @@ const DonorItem = (props) => {
       <div className="text-gray-500 text-base space-y-1">
         <div className="flex items-center gap-2">
           <Mail size={14} />
-          <p>{props.mail}</p>
+          <p>{props.email}</p>
         </div>
         <div className="flex items-center gap-2">
           <Phone size={14} />
@@ -85,8 +83,11 @@ const DonorItem = (props) => {
       {/* ACTIONS */}
       <div className="flex items-center justify-between lg:justify-start gap-7">
         <Eye size={18} />
-        <button className=" border cursor-pointer border-gray-500 px-4 py-2 rounded-lg text-base">
-          Mark Available
+        <button
+          onClick={props.onToggle}
+          className="border cursor-pointer border-gray-500 px-4 py-2 rounded-lg text-base"
+        >
+          {props.status === "Available" ? "Mark Unavailable" : "Mark Available"}
         </button>
       </div>
     </div>

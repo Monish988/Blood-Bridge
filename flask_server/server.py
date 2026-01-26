@@ -1,0 +1,432 @@
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from datetime import datetime
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt,
+    get_jwt_identity
+)
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "dev-secret-key"
+jwt = JWTManager(app)
+
+# Change from: CORS(app)
+CORS(app)
+
+# ================== "TABLES" ==================
+
+
+users = [
+    {
+        "id": 1,
+        "name": "Apollo Hospital",
+        "email": "hospital@gmail.com",
+        "password": generate_password_hash("123456"),
+        "role": "hospital"
+    },
+    {
+        "id": 2,
+        "name": "Rahul",
+        "email": "donor@gmail.com",
+        "password": generate_password_hash("123456"),
+        "role": "donor"
+    }
+]
+
+
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    user = next((u for u in users if u["email"] == email), None)
+
+    if not user or not check_password_hash(user["password"], password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    token = create_access_token(
+    identity=str(user["id"]),     # ✅ STRING
+    additional_claims={"role": user["role"]}
+)
+
+
+    return jsonify({
+        "token": token,
+        "role": user["role"],
+        "name": user["name"]
+    })
+
+@app.route("/api/auth/signup", methods=["POST"])
+def signup():
+    data = request.json
+
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+    role = data.get("role", "donor")  # donor by default
+
+    if not name or not email or not password:
+        return jsonify({"error": "Missing fields"}), 400
+
+    # check if user exists
+    if any(u["email"] == email for u in users):
+        return jsonify({"error": "User already exists"}), 409
+
+    new_user = {
+        "id": len(users) + 1,
+        "name": name,
+        "email": email,
+        "password": generate_password_hash(password),
+        "role": role
+    }
+
+    users.append(new_user)
+
+    token = create_access_token(
+    identity=str(new_user["id"]), # ✅ STRING
+    additional_claims={"role": new_user["role"]}
+)
+
+
+    return jsonify({
+        "token": token,
+        "role": new_user["role"],
+        "name": new_user["name"]
+    }), 201
+
+
+
+
+# -------- DONORS --------
+
+
+donors = []
+donor_id = 2
+
+@app.route("/api/donors/register", methods=["POST"])
+@jwt_required()
+def register_donor():
+    user_id = int(get_jwt_identity())
+    role = get_jwt()["role"]
+
+    if role.lower() != "donor":
+        return jsonify({"error": "Only donors can register"}), 403
+
+    # prevent duplicate registration
+    if any(d.get("userId") == user_id for d in donors):
+        return jsonify({"error": "Donor already registered"}), 409
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data received"}), 422
+
+    required = ["name", "gender", "bloodGroup", "phone", "city"]
+    missing = [f for f in required if f not in data]
+
+    if missing:
+        return jsonify({
+            "error": "Missing fields",
+            "missing": missing
+        }), 422
+
+    donor = {
+        "id": len(donors) + 1,
+        "userId": user_id,
+        "name": data["name"],
+        "gender": data["gender"],
+        "bloodGroup": data["bloodGroup"],
+        "phone": data["phone"],
+        "city": data["city"],
+        "available": False,
+        "verified": False,
+        "createdAt": datetime.utcnow().isoformat()
+    }
+
+    donors.append(donor)
+    return jsonify(donor), 201
+
+
+
+
+
+
+# -------- HOSPITALS --------
+hospitals = {
+    1: {
+        "id": 1,
+        "name": "Apollo Hospital",
+        "email": "apollo@gmail.com",
+        "phone": "9876543210",
+        "city": "Bangalore",
+        "license": "LIC-AP-001",
+        "verified": True
+    },
+    2: {
+        "id": 2,
+        "name": "Fortis Care",
+        "email": "fortis@gmail.com",
+        "phone": "9123456789",
+        "city": "Delhi",
+        "license": "LIC-FT-002",
+        "verified": False
+    }
+}
+hospital_id = 3
+
+
+# -------- INVENTORY --------
+inventory = [
+    {
+        "id": 1,
+        "hospitalId": 1,
+        "hospitalName": "Apollo Hospital",
+        "bloodGroup": "B-",
+        "units": 10,
+        "expiry": "2025-03-10",
+        "updatedAt": "2025-01-24T22:02:00"
+    },
+    {
+        "id": 2,
+        "hospitalId": 1,
+        "hospitalName": "Apollo Hospital",
+        "bloodGroup": "O+",
+        "units": 18,
+        "expiry": "2025-04-02",
+        "updatedAt": "2025-01-23T20:15:00"
+    }
+]
+inventory_id = 3
+
+
+# -------- REQUESTS --------
+blood_requests = [
+    {
+        "id": 1,
+        "hospital": "Metro Blood Bank",
+        "phone": "+1 555 200 3000",
+        "city": "Los Angeles",
+        "bloodGroup": "A-",
+        "units": 1,
+        "urgency": "LOW",
+        "status": "OPEN",
+        "createdAt": "2025-01-24T12:33:00"
+    }
+]
+request_id = 2
+
+
+# ================== ROUTES ==================
+
+# -------- DONORS --------
+@app.route("/api/donors", methods=["GET"])
+def get_donors():
+    return jsonify(donors)
+
+
+@app.route("/api/donors", methods=["POST"])
+def add_donor():
+    global donor_id
+    data = request.json
+
+    donor = {
+        "id": donor_id,
+        "name": data["name"],
+        "age": data["age"],
+        "gender": data["gender"],
+        "bloodGroup": data["bloodGroup"],
+        "phone": data["phone"],
+        "email": data["email"],
+        "city": data["city"],
+        "available": True,
+        "verified": False,
+        "createdAt": datetime.utcnow().isoformat()
+    }
+
+    donors.append(donor)
+    donor_id += 1
+    return jsonify(donor), 201
+
+
+@app.route("/api/donors/<int:id>/toggle", methods=["PATCH"])
+def toggle_donor(id):
+    for donor in donors:
+        if donor["id"] == id:
+            donor["available"] = not donor["available"]
+            return jsonify(donor)
+    return jsonify({"error": "Donor not found"}), 404
+
+
+# -------- HOSPITALS --------
+@app.route("/api/hospitals", methods=["GET"])
+def get_hospitals():
+    return jsonify(list(hospitals.values()))
+
+
+@app.route("/api/hospitals", methods=["POST"])
+def add_hospital():
+    global hospital_id
+    data = request.json
+
+    hospital = {
+        "id": hospital_id,
+        "name": data["name"],
+        "email": data["email"],
+        "phone": data["phone"],
+        "city": data["city"],
+        "license": data["license"],
+        "verified": False
+    }
+
+    hospitals[hospital_id] = hospital
+    hospital_id += 1
+    return jsonify(hospital), 201
+
+
+@app.route("/api/hospitals/<int:id>", methods=["PATCH"])
+def update_hospital(id):
+    if id not in hospitals:
+        return jsonify({"error": "Hospital not found"}), 404
+
+    data = request.json
+    hospital = hospitals[id]
+
+    hospital["name"] = data.get("name", hospital["name"])
+    hospital["email"] = data.get("email", hospital["email"])
+    hospital["phone"] = data.get("phone", hospital["phone"])
+    hospital["city"] = data.get("city", hospital["city"])
+    hospital["license"] = data.get("license", hospital["license"])
+
+    return jsonify(hospital)
+
+
+@app.route("/api/hospitals/<int:id>/toggle", methods=["PATCH"])
+def toggle_hospital(id):
+    if id not in hospitals:
+        return jsonify({"error": "Hospital not found"}), 404
+
+    hospitals[id]["verified"] = not hospitals[id]["verified"]
+    return jsonify(hospitals[id])
+
+
+@app.route("/api/hospitals/<int:id>", methods=["DELETE"])
+def delete_hospital(id):
+    if id not in hospitals:
+        return jsonify({"error": "Hospital not found"}), 404
+
+    del hospitals[id]
+    return jsonify({"message": "Deleted"})
+
+
+# -------- INVENTORY --------
+@app.route("/api/inventory", methods=["GET"])
+def get_inventory():
+    return jsonify(inventory)
+
+
+@app.route("/api/inventory", methods=["POST"])
+def add_inventory():
+    global inventory_id
+    data = request.json
+
+    record = {
+        "id": inventory_id,
+        "hospitalId": data["hospitalId"],
+        "hospitalName": data["hospitalName"],
+        "bloodGroup": data["bloodGroup"],
+        "units": int(data["units"]),
+        "expiry": data["expiry"],
+        "updatedAt": datetime.utcnow().isoformat()
+    }
+
+    inventory.append(record)
+    inventory_id += 1
+    return jsonify(record), 201
+
+
+@app.route("/api/inventory/<int:id>", methods=["PATCH"])
+def update_inventory(id):
+    for item in inventory:
+        if item["id"] == id:
+            data = request.json
+            item["hospitalId"] = data.get("hospitalId", item["hospitalId"])
+            item["hospitalName"] = data.get("hospitalName", item["hospitalName"])
+            item["bloodGroup"] = data.get("bloodGroup", item["bloodGroup"])
+            item["units"] = int(data.get("units", item["units"]))
+            item["expiry"] = data.get("expiry", item["expiry"])
+            item["updatedAt"] = datetime.utcnow().isoformat()
+            return jsonify(item)
+
+    return jsonify({"error": "Inventory not found"}), 404
+
+
+@app.route("/api/inventory/<int:id>", methods=["DELETE"])
+def delete_inventory(id):
+    global inventory
+    inventory = [i for i in inventory if i["id"] != id]
+    return jsonify({"message": "Deleted"})
+
+
+# -------- REQUESTS --------
+@app.route("/api/requests", methods=["GET"])
+def get_requests():
+    return jsonify(blood_requests)
+
+@app.route("/api/requests", methods=["POST"])
+def add_request():
+    global request_id
+    data = request.json
+
+    hospital = hospitals.get(data["hospitalId"])
+
+    if not hospital:
+        return jsonify({"error": "Hospital not found"}), 400
+
+    req = {
+        "id": request_id,
+        "hospitalId": hospital["id"],
+        "hospital": hospital["name"],
+        "city": hospital["city"],
+        "phone": data.get("phone", ""),
+        "bloodGroup": data["bloodGroup"],
+        "units": int(data["units"]),
+        "urgency": data["urgency"],
+        "status": "OPEN",
+        "createdAt": datetime.utcnow().isoformat()
+    }
+
+    blood_requests.append(req)
+    request_id += 1
+    return jsonify(req), 201
+
+
+
+@app.route("/api/requests/<int:id>", methods=["PATCH"])
+def update_request(id):
+    for req in blood_requests:
+        if req["id"] == id:
+            req["status"] = request.json.get("status", req["status"])
+            return jsonify(req)
+
+    return jsonify({"error": "Request not found"}), 404
+
+
+# -------- STATS --------
+@app.route("/api/stats")
+def stats():
+    return jsonify({
+        "totalDonors": len(donors),
+        "availableDonors": len([d for d in donors if d["available"]]),
+        "activeRequests": len([r for r in blood_requests if r["status"] == "OPEN"])
+    })
+
+
+# ================== RUN ==================
+if __name__ == "__main__":
+    app.run(debug=True)

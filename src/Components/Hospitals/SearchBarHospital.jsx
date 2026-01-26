@@ -1,20 +1,17 @@
-import React from 'react'
-import { Search } from 'lucide-react'
-
-const SearchBarHospital = () => {
+import { Search } from "lucide-react";
+const SearchBarHospital = ({ search, setSearch }) => {
   return (
-   <div className="flex flex-col lg:flex-row gap-3 bg-white shadow w-full p-4 rounded-lg">
-      
-      {/* SEARCH INPUT */}
-      <div className="border flex-1 border-gray-200 text-gray-500 p-3 rounded-lg flex gap-3 focus-within:ring">
+    <div className="bg-white shadow p-4 rounded-lg">
+      <div className="border flex items-center gap-3 p-3 rounded-lg">
         <Search />
         <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full outline-none"
           placeholder="Search hospitals by name or city..."
         />
       </div>
     </div>
-  )
-}
-
-export default SearchBarHospital
+  );
+};
+export default SearchBarHospital;
