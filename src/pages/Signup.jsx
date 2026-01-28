@@ -23,9 +23,16 @@ const SignUp = () => {
   const handleSubmit = async () => {
     try {
       await api.post("/api/auth/signup", form);
-      navigate("/login");
-    } catch (err) {
-      alert("Signup failed");
+      
+      // If user signed up as donor, redirect to donor registration
+      if (form.role === "donor") {
+        sessionStorage.setItem("pendingDonorRegistration", "true");
+        navigate("/login");
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      alert("Signup failed: " + (error.response?.data?.error || "Unknown error"));
     }
   };
 

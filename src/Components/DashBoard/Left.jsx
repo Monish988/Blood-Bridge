@@ -1,11 +1,9 @@
 import { Droplets, CircleUser, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect,useState } from "react";
-import api from "../../services/api";
+import { useState } from "react";
 const Left = () => {
   const { user, logout } = useAuth();
-  const [isDonorRegistered, setIsDonorRegistered] = useState(false);
   const navigate = useNavigate();
 
   const navItems = [
@@ -26,10 +24,15 @@ const Left = () => {
       path: "/dashboard/hospitals",
     },
     { id: 5, label: "Donors", path: "/dashboard/donors" },
+    user?.role === "donor" && {
+      id: 6,
+      label: "My Profile",
+      path: "/dashboard/donor-profile",
+    },
    user?.role === "donor" &&
 localStorage.getItem("donorRegistered") !== "true" && {
-  id: 6,
-  label: "Register",
+  id: 7,
+  label: "🩸 Register as Donor",
   path: "/dashboard/register-donor",
 },
 

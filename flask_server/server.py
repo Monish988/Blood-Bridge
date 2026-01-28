@@ -144,8 +144,10 @@ def register_donor():
         "bloodGroup": data["bloodGroup"],
         "phone": data["phone"],
         "city": data["city"],
+        "email": data.get("email", ""),
         "available": False,
         "verified": False,
+        "unavailableDates": [],
         "createdAt": datetime.utcnow().isoformat()
     }
 
@@ -259,6 +261,19 @@ def toggle_donor(id):
     for donor in donors:
         if donor["id"] == id:
             donor["available"] = not donor["available"]
+            return jsonify(donor)
+    return jsonify({"error": "Donor not found"}), 404
+
+
+@app.route("/api/donors/<int:id>/unavailable-dates", methods=["PATCH"])
+def update_unavailable_dates(id):
+    data = request.get_json()
+    if not data or "unavailableDates" not in data:
+        return jsonify({"error": "Missing unavailableDates field"}), 422
+    
+    for donor in donors:
+        if donor["id"] == id:
+            donor["unavailableDates"] = data["unavailableDates"]
             return jsonify(donor)
     return jsonify({"error": "Donor not found"}), 404
 

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import api from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [form, setForm] = useState({
@@ -16,14 +17,37 @@ const Login = () => {
     try {
       const res = await api.post("/api/auth/login", form);
 
-      console.log("LOGIN RESPONSE:", res.data);
-
-      login({
+      const userData = {
         name: res.data.name,
         role: res.data.role,
-        email: form.email,     // 👈 ADD THIS
+        email: form.email,
         token: res.data.token,
-      });
+      };
+
+      login(userData);
+
+      // Check if user was redirected from signup as donor
+      if (sessionStorage.getItem("pendingDonorRegistration") === "true" && userData.role === "donor") {
+        // Check if donor profile is already registered
+        const donorRegistered = localStorage.getItem("donorRegistered");
+        sessionStorage.removeItem("pendingDonorRegistration"); // Clear the flag
+        if (!donorRegistered) {
+          navigate("/dashboard/register-donor");
+          return;
+        }
+      }
+
+      // For existing donor users, check if they need to register donor profile
+      if (userData.role === "donor") {
+        const donorRegistered = localStorage.getItem("donorRegistered");
+        if (!donorRegistered) {
+          // Show prompt to register as donor
+          if (window.confirm("Would you like to register as a blood donor? This will help match you with blood requests.")) {
+            navigate("/dashboard/register-donor");
+            return;
+          }
+        }
+      }
 
       navigate("/dashboard");
     } catch (err) {

@@ -1,6 +1,6 @@
 import React from "react";
 
-const RightCard = ({ icon: Icon, title, count, color }) => {
+const RightCard = ({ icon, title, count, color }) => {
   return (
     <div className="bg-white rounded-lg py-10 px-12 shadow-lg w-full">
       <div className="flex items-center justify-between">
@@ -9,7 +9,7 @@ const RightCard = ({ icon: Icon, title, count, color }) => {
           <h2 className="font-bold text-4xl">{count}</h2>
         </div>
         <div className={`p-4 rounded-2xl text-white shadow-xl ${color}`}>
-          <Icon size={32} />
+          {React.createElement(icon, { size: 32 })}
         </div>
       </div>
     </div>

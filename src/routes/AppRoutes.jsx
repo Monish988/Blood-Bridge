@@ -9,6 +9,7 @@ import Request from "../Components/BloodRequests/Request";
 import Hospital from "../Components/Hospitals/Hospital";
 import SignUp from "../pages/Signup";
 import DonorRegister from "../Components/Donor/DonorRegister";
+import DonorProfile from "../Components/Donor/DonorProfile";
 const AppRoutes = () => (
 <Routes>
   <Route path="/" element={<Navigate to="/login" />} />
@@ -30,6 +31,7 @@ const AppRoutes = () => (
     <Route path="requests" element={<Request />} />
     <Route path="hospitals" element={<Hospital />} />
     <Route path="register-donor" element={<DonorRegister />} />
+    <Route path="donor-profile" element={<DonorProfile />} />
   </Route>
 </Routes>
 
