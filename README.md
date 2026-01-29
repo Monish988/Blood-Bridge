@@ -1,5 +1,5 @@
 
-# 🩸 BLOOD – Blood Bank Management System
+# 🩸 BLOOD BRIDGE – Blood Bank Management System
 
 > **Donate Blood, Save Lives**
 
