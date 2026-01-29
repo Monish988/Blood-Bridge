@@ -129,19 +129,19 @@ const Hospital = () => {
   if (loading) return <p>Loading hospitals...</p>;
 
   return (
-    <div className="flex-1 min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-9 py-6 space-y-6 relative">
+    <div className="flex-1 min-h-screen bg-gray-100 px-3 md:px-6 lg:px-9 py-4 md:py-6 space-y-6 md:space-y-8 page-load-animation">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-0">
         <div>
-          <h2 className="text-3xl font-bold">Hospitals</h2>
-          <p className="text-gray-400">Manage registered hospitals</p>
+          <h2 className="text-2xl md:text-3xl font-bold">Hospitals</h2>
+          <p className="text-sm md:text-base text-gray-400">Manage registered hospitals</p>
         </div>
 
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-700"
+          className="flex items-center gap-2 bg-red-500 text-white px-3 md:px-5 py-2 rounded-lg hover:bg-red-700 text-sm md:text-base"
         >
-          <Plus size={18} />
+          <Plus size={16} className="md:w-4.5 md:h-4.5" />
           Add Hospital
         </button>
       </div>
@@ -150,7 +150,7 @@ const Hospital = () => {
       <SearchBarHospital search={search} setSearch={setSearch} />
 
       {/* LIST */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 p-1 max-h-[90vh] overflow-y-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 p-1 max-h-[90vh] overflow-y-auto">
         {filteredHospitals.map((h) => (
           <HospitalCard
             key={h.id}
@@ -172,19 +172,19 @@ const Hospital = () => {
       {editOpen && (
         <div
           onClick={() => setEditOpen(false)}
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] px-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-md rounded-lg p-6 space-y-4"
+            className="bg-white w-full max-w-md rounded-lg p-4 md:p-6 space-y-3 md:space-y-4"
           >
-            <h3 className="text-xl font-bold">Edit Hospital</h3>
+            <h3 className="text-lg md:text-xl font-bold">Edit Hospital</h3>
 
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded text-sm md:text-base"
               placeholder="Hospital Name"
             />
 
@@ -192,7 +192,7 @@ const Hospital = () => {
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded text-sm md:text-base"
               placeholder="Email"
             />
 

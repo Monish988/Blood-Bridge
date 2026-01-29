@@ -1,3 +1,15 @@
+"""
+BLOOD – Blood Bank Application (REST API)
+Flask REST API backend for React frontend.
+
+Implements user registration, login, blood request creation, donor-requestor matching,
+and donation history tracking with AI-powered blood compatibility.
+
+Author: Development Team
+Date: 2026
+Version: 2.0.0
+"""
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
@@ -8,36 +20,66 @@ from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity
 )
-
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
+
+# Import AI engine for blood compatibility
+from ai_engine import (
+    get_compatible_blood_groups,
+    filter_compatible_donors,
+    is_compatible,
+    get_all_valid_blood_groups,
+    match_donors_to_request,
+    get_donation_stats
+)
 
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "dev-secret-key"
+app.config["JWT_SECRET_KEY"] = "BLOOD_BANK_SECRET_KEY_2026_SECURE"
 jwt = JWTManager(app)
 
-# Change from: CORS(app)
+# Enable CORS for React frontend
 CORS(app)
 
-# ================== "TABLES" ==================
+# ============================================================================
+# IN-MEMORY DATA STORAGE
+# ============================================================================
 
-
+# Users storage: list of user dictionaries
 users = [
     {
         "id": 1,
         "name": "Apollo Hospital",
         "email": "hospital@gmail.com",
         "password": generate_password_hash("123456"),
-        "role": "hospital"
+        "role": "hospital",
+        "phone": "9876543210",
+        "city": "Bangalore"
     },
     {
         "id": 2,
         "name": "Rahul",
         "email": "donor@gmail.com",
         "password": generate_password_hash("123456"),
-        "role": "donor"
+        "role": "donor",
+        "bloodGroup": "O+",
+        "phone": "9123456789",
+        "city": "Delhi"
     }
 ]
+
+# Donation history: donor_id -> list of donations
+donation_history = {}
+
+# Helper function to generate unique IDs
+def generate_unique_id(prefix):
+    """Generate unique IDs for donors, hospitals, and requests."""
+    return f"{prefix}{str(uuid.uuid4())[:8]}"
+
+
+# ============================================================================
+# AUTHENTICATION ROUTES
+# ============================================================================
 
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -60,20 +102,35 @@ def login():
     return jsonify({
         "token": token,
         "role": user["role"],
-        "name": user["name"]
+        "name": user["name"],
+        "email": user["email"],
+        "bloodGroup": user.get("bloodGroup", ""),
+        "phone": user.get("phone", "")
     })
 
 @app.route("/api/auth/signup", methods=["POST"])
 def signup():
+    global donor_id
     data = request.json
 
     name = data.get("name")
     email = data.get("email")
     password = data.get("password")
     role = data.get("role", "donor")  # donor by default
+    phone = data.get("phone", "")
+    bloodGroup = data.get("bloodGroup", "") if role == "donor" else ""
+    city = data.get("city", "")
 
     if not name or not email or not password:
         return jsonify({"error": "Missing fields"}), 400
+
+    # Validate blood group for donors using AI engine
+    if role.lower() == "donor" and bloodGroup:
+        valid_blood_groups = get_all_valid_blood_groups()
+        if bloodGroup not in valid_blood_groups:
+            return jsonify({
+                "error": f"Invalid blood group! Valid groups: {', '.join(valid_blood_groups)}"
+            }), 400
 
     # check if user exists
     if any(u["email"] == email for u in users):
@@ -84,10 +141,35 @@ def signup():
         "name": name,
         "email": email,
         "password": generate_password_hash(password),
-        "role": role
+        "role": role,
+        "phone": phone,
+        "bloodGroup": bloodGroup,
+        "city": city
     }
 
     users.append(new_user)
+
+    # If donor, automatically create donor profile
+    if role.lower() == "donor":
+        donor_profile = {
+            "id": donor_id,
+            "userId": new_user["id"],
+            "name": name,
+            "gender": data.get("gender", ""),
+            "bloodGroup": bloodGroup,
+            "phone": phone,
+            "city": city,
+            "email": email,
+            "available": False,
+            "verified": False,
+            "unavailableDates": [],
+            "donationCount": 0,
+            "lastDonationDate": None,
+            "createdAt": datetime.utcnow().isoformat(),
+            "compatibilityInfo": get_donation_stats(bloodGroup) if bloodGroup else None
+        }
+        donors.append(donor_profile)
+        donor_id += 1
 
     token = create_access_token(
     identity=str(new_user["id"]), # ✅ STRING
@@ -98,7 +180,10 @@ def signup():
     return jsonify({
         "token": token,
         "role": new_user["role"],
-        "name": new_user["name"]
+        "name": new_user["name"],
+        "email": new_user["email"],
+        "bloodGroup": bloodGroup,
+        "phone": phone
     }), 201
 
 
@@ -136,27 +221,124 @@ def register_donor():
             "missing": missing
         }), 422
 
+    # Validate blood group using AI engine
+    blood_group = data["bloodGroup"]
+    valid_blood_groups = get_all_valid_blood_groups()
+    if blood_group not in valid_blood_groups:
+        return jsonify({
+            "error": f"Invalid blood group! Valid groups: {', '.join(valid_blood_groups)}"
+        }), 400
+
     donor = {
         "id": len(donors) + 1,
         "userId": user_id,
         "name": data["name"],
         "gender": data["gender"],
-        "bloodGroup": data["bloodGroup"],
+        "bloodGroup": blood_group,
         "phone": data["phone"],
         "city": data["city"],
         "email": data.get("email", ""),
         "available": False,
         "verified": False,
         "unavailableDates": [],
-        "createdAt": datetime.utcnow().isoformat()
+        "donationCount": 0,
+        "lastDonationDate": None,
+        "createdAt": datetime.utcnow().isoformat(),
+        "compatibilityInfo": get_donation_stats(blood_group)
     }
 
     donors.append(donor)
     return jsonify(donor), 201
 
 
+# -------- DONORS ROUTES --------
+
+@app.route("/api/donors", methods=["GET"])
+def get_donors():
+    """Get all donors with compatibility info."""
+    # Add compatibility info to each donor
+    donors_with_info = []
+    for donor in donors:
+        donor_copy = donor.copy()
+        if donor_copy.get("bloodGroup"):
+            donor_copy["compatibilityInfo"] = get_donation_stats(donor_copy["bloodGroup"])
+        donors_with_info.append(donor_copy)
+    return jsonify(donors_with_info)
 
 
+@app.route("/api/donors/profile/<email>", methods=["GET"])
+@jwt_required()
+def get_donor_profile(email):
+    """Get donor profile with donation history."""
+    donor = next((d for d in donors if d.get("email") == email), None)
+    if not donor:
+        return jsonify({"error": "Donor profile not found"}), 404
+    
+    # Add donation history
+    profile = donor.copy()
+    profile["donationHistory"] = donation_history.get(email, [])
+    profile["compatibilityInfo"] = get_donation_stats(donor["bloodGroup"]) if donor.get("bloodGroup") else None
+    
+    return jsonify(profile)
+
+
+@app.route("/api/donors/<int:id>/record-donation", methods=["PATCH"])
+@jwt_required()
+def record_donation_route(id):
+    """Record a donation for a donor."""
+    data = request.get_json()
+    
+    for donor in donors:
+        if donor["id"] == id:
+            # Update donor stats
+            donor["donationCount"] = donor.get("donationCount", 0) + 1
+            donor["lastDonationDate"] = datetime.utcnow().isoformat()
+            
+            # Record in donation history
+            donor_email = donor.get("email", f"donor_{id}")
+            if donor_email not in donation_history:
+                donation_history[donor_email] = []
+            
+            donation_record = {
+                "requestId": data.get("requestId", ""),
+                "bloodGroup": donor["bloodGroup"],
+                "requestorEmail": data.get("requestorEmail", ""),
+                "requestorName": data.get("requestorName", ""),
+                "dateTime": datetime.utcnow().isoformat(),
+                "units": data.get("units", 1)
+            }
+            donation_history[donor_email].append(donation_record)
+            
+            return jsonify({
+                "donor": donor,
+                "donation": donation_record
+            })
+    
+    return jsonify({"error": "Donor not found"}), 404
+
+
+@app.route("/api/donors/<int:id>/toggle", methods=["PATCH"])
+def toggle_donor(id):
+    """Toggle donor availability."""
+    for donor in donors:
+        if donor["id"] == id:
+            donor["available"] = not donor["available"]
+            return jsonify(donor)
+    return jsonify({"error": "Donor not found"}), 404
+
+
+@app.route("/api/donors/<int:id>/unavailable-dates", methods=["PATCH"])
+def update_unavailable_dates(id):
+    """Update donor unavailable dates."""
+    data = request.get_json()
+    if not data or "unavailableDates" not in data:
+        return jsonify({"error": "Missing unavailableDates field"}), 422
+    
+    for donor in donors:
+        if donor["id"] == id:
+            donor["unavailableDates"] = data["unavailableDates"]
+            return jsonify(donor)
+    return jsonify({"error": "Donor not found"}), 404
 
 
 # -------- HOSPITALS --------
@@ -222,60 +404,6 @@ blood_requests = [
     }
 ]
 request_id = 2
-
-
-# ================== ROUTES ==================
-
-# -------- DONORS --------
-@app.route("/api/donors", methods=["GET"])
-def get_donors():
-    return jsonify(donors)
-
-
-@app.route("/api/donors", methods=["POST"])
-def add_donor():
-    global donor_id
-    data = request.json
-
-    donor = {
-        "id": donor_id,
-        "name": data["name"],
-        "age": data["age"],
-        "gender": data["gender"],
-        "bloodGroup": data["bloodGroup"],
-        "phone": data["phone"],
-        "email": data["email"],
-        "city": data["city"],
-        "available": True,
-        "verified": False,
-        "createdAt": datetime.utcnow().isoformat()
-    }
-
-    donors.append(donor)
-    donor_id += 1
-    return jsonify(donor), 201
-
-
-@app.route("/api/donors/<int:id>/toggle", methods=["PATCH"])
-def toggle_donor(id):
-    for donor in donors:
-        if donor["id"] == id:
-            donor["available"] = not donor["available"]
-            return jsonify(donor)
-    return jsonify({"error": "Donor not found"}), 404
-
-
-@app.route("/api/donors/<int:id>/unavailable-dates", methods=["PATCH"])
-def update_unavailable_dates(id):
-    data = request.get_json()
-    if not data or "unavailableDates" not in data:
-        return jsonify({"error": "Missing unavailableDates field"}), 422
-    
-    for donor in donors:
-        if donor["id"] == id:
-            donor["unavailableDates"] = data["unavailableDates"]
-            return jsonify(donor)
-    return jsonify({"error": "Donor not found"}), 404
 
 
 # -------- HOSPITALS --------
@@ -391,7 +519,24 @@ def delete_inventory(id):
 # -------- REQUESTS --------
 @app.route("/api/requests", methods=["GET"])
 def get_requests():
-    return jsonify(blood_requests)
+    """Get all blood requests with compatible donor information."""
+    # Enrich requests with compatible donor matching
+    requests_with_matches = []
+    for req in blood_requests:
+        req_copy = req.copy()
+        
+        # Add blood group compatibility info
+        if req_copy.get("bloodGroup"):
+            req_copy["compatibilityInfo"] = get_compatible_blood_groups(req_copy["bloodGroup"])
+            
+            # Find matching donors
+            matched_donors = match_donors_to_request(req_copy, donors)
+            req_copy["matchedDonors"] = matched_donors
+            req_copy["matchedDonorsCount"] = len(matched_donors)
+        
+        requests_with_matches.append(req_copy)
+    
+    return jsonify(requests_with_matches)
 
 @app.route("/api/requests", methods=["POST"])
 def add_request():
@@ -402,6 +547,15 @@ def add_request():
 
     if not hospital:
         return jsonify({"error": "Hospital not found"}), 400
+    
+    blood_group = data["bloodGroup"]
+    
+    # Validate blood group using AI engine
+    valid_blood_groups = get_all_valid_blood_groups()
+    if blood_group not in valid_blood_groups:
+        return jsonify({
+            "error": f"Invalid blood group! Valid groups: {', '.join(valid_blood_groups)}"
+        }), 400
 
     req = {
         "id": request_id,
@@ -409,12 +563,18 @@ def add_request():
         "hospital": hospital["name"],
         "city": hospital["city"],
         "phone": data.get("phone", ""),
-        "bloodGroup": data["bloodGroup"],
+        "bloodGroup": blood_group,
         "units": int(data["units"]),
         "urgency": data["urgency"],
         "status": "OPEN",
-        "createdAt": datetime.utcnow().isoformat()
+        "createdAt": datetime.utcnow().isoformat(),
+        "compatibilityInfo": get_compatible_blood_groups(blood_group)
     }
+    
+    # Find matching donors immediately
+    matched_donors = match_donors_to_request(req, donors)
+    req["matchedDonors"] = matched_donors
+    req["matchedDonorsCount"] = len(matched_donors)
 
     blood_requests.append(req)
     request_id += 1
@@ -442,6 +602,24 @@ def stats():
     })
 
 
-# ================== RUN ==================
-if __name__ == "__main__":
-    app.run(debug=True)
+# ============================================================================
+# MAIN APPLICATION ENTRY POINT
+# ============================================================================
+
+if __name__ == '__main__':
+    """
+    Run the Flask application in debug mode.
+    Access at http://127.0.0.1:5000
+    """
+    APP_NAME = "BLOOD – Blood Bank Application"
+    APP_QUOTE = "Donate Blood, Save Lives"
+    
+    print(f"\n{'=' * 70}")
+    print(f"  {APP_NAME}")
+    print(f"  {APP_QUOTE}")
+    print(f"{'=' * 70}")
+    print(f"\nStarting Flask application in DEBUG mode...")
+    print(f"Access the application at: http://127.0.0.1:5000")
+    print(f"\nPress Ctrl+C to stop the server.\n")
+    
+    app.run(debug=True, host='127.0.0.1', port=5000)

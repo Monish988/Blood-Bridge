@@ -23,19 +23,16 @@ const Left = () => {
       label: "Hospitals",
       path: "/dashboard/hospitals",
     },
-    { id: 5, label: "Donors", path: "/dashboard/donors" },
+    user?.role === "hospital" && {
+      id: 5,
+      label: "Donors",
+      path: "/dashboard/donors",
+    },
     user?.role === "donor" && {
       id: 6,
       label: "My Profile",
       path: "/dashboard/donor-profile",
     },
-   user?.role === "donor" &&
-localStorage.getItem("donorRegistered") !== "true" && {
-  id: 7,
-  label: "🩸 Register as Donor",
-  path: "/dashboard/register-donor",
-},
-
   ].filter(Boolean);
 
   const handleLogout = () => {
@@ -44,29 +41,29 @@ localStorage.getItem("donorRegistered") !== "true" && {
   };
 
   return (
-    <aside className="w-full lg:w-1/6 h-screen px-6 bg-white flex flex-col">
+    <aside className="w-full md:w-1/6 md:h-screen px-4 md:px-6 bg-white flex flex-col md:border-r border-gray-200">
       {/* TOP */}
-      <div className="flex items-center gap-4 py-6 border-b border-gray-200">
-        <div className="shadow-xl text-white bg-red-500 p-3 rounded-2xl">
-          <Droplets size={32} />
+      <div className="flex items-center gap-3 md:gap-4 py-3 md:py-6 border-b border-gray-200">
+        <div className="shadow-xl text-white bg-red-500 p-2 md:p-3 rounded-2xl">
+          <Droplets size={24} className="md:w-8 md:h-8" />
         </div>
-        <div>
-          <h3 className="text-2xl font-extrabold">Blood Bridge</h3>
-          <p className="text-sm text-gray-500">Connecting Lives</p>
+        <div className="hidden md:block">
+          <h3 className="text-xl md:text-2xl font-extrabold">Blood Bridge</h3>
+          <p className="text-xs md:text-sm text-gray-500">Connecting Lives</p>
         </div>
       </div>
 
       {/* NAV */}
-      <nav className="flex flex-col px-4 gap-4 py-6 flex-1 overflow-y-auto">
+      <nav className="flex md:flex-col px-2 md:px-4 gap-2 md:gap-4 py-3 md:py-6 flex-1 overflow-x-auto md:overflow-x-visible overflow-y-auto md:overflow-y-auto">
         {navItems.map(({ id, label, path }) => (
           <NavLink
-            key={id}   // ✅ FIXED KEY WARNING
+            key={id}
             to={path}
             end={path === "/dashboard"}
             className={({ isActive }) =>
-              `text-lg transition ${
+              `text-xs md:text-lg transition whitespace-nowrap md:whitespace-normal px-3 md:px-0 py-2 md:py-0 rounded md:rounded-none ${
                 isActive
-                  ? "text-red-500 font-semibold"
+                  ? "text-red-500 font-semibold bg-red-50 md:bg-transparent"
                   : "text-gray-500 hover:text-red-500"
               }`
             }
@@ -77,23 +74,24 @@ localStorage.getItem("donorRegistered") !== "true" && {
       </nav>
 
       {/* BOTTOM */}
-      <div className="bg-gray-100 flex items-center justify-between gap-3 py-3 mb-3 px-4 rounded-2xl">
-        <div className="flex gap-4 items-center">
-          <div className="bg-gray-900 text-white rounded-full p-1">
-            <CircleUser size={28} />
+      <div className="bg-gray-100 flex items-center justify-between gap-2 md:gap-3 py-2 md:py-3 mb-2 md:mb-3 px-2 md:px-4 rounded-2xl">
+        <div className="flex gap-2 md:gap-4 items-center min-w-0">
+          <div className="bg-gray-900 text-white rounded-full p-1 flex-shrink-0">
+            <CircleUser size={20} className="md:w-7 md:h-7" />
           </div>
-          <div>
-            <h4 className="font-semibold">
+          <div className="hidden md:block min-w-0">
+            <h4 className="font-semibold text-sm truncate">
               {user?.name || "User"}
             </h4>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 truncate">
               {user?.email || "email"}
             </p>
           </div>
         </div>
 
         <LogOut
-          className="text-gray-400 cursor-pointer hover:text-red-500"
+          className="text-gray-400 cursor-pointer hover:text-red-500 flex-shrink-0"
+          size={20}
           onClick={handleLogout}
         />
       </div>

@@ -127,27 +127,27 @@ const Inventory = () => {
   /* ---------------- UI ---------------- */
 
   return (
-    <div className="flex-1 min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-9 py-6 space-y-10">
+    <div className="flex-1 min-h-screen bg-gray-100 px-3 md:px-6 lg:px-9 py-4 md:py-6 space-y-6 md:space-y-8 page-load-animation">
       {/* HEADER */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
         <div>
-          <h2 className="font-bold text-3xl">Blood Inventory</h2>
-          <p className="text-gray-400">
+          <h2 className="font-bold text-2xl md:text-3xl">Blood Inventory</h2>
+          <p className="text-sm md:text-base text-gray-400">
             Track blood units across all hospitals
           </p>
         </div>
 
         <button
           onClick={openAddModal}
-          className="active:scale-95 text-white font-semibold flex items-center gap-3 bg-red-500 hover:bg-red-600 rounded-lg py-2 px-4"
+          className="active:scale-95 text-white font-semibold flex items-center gap-2 md:gap-3 bg-red-500 hover:bg-red-600 rounded-lg py-2 px-3 md:px-4 text-sm md:text-base"
         >
-          <Plus size={18} />
+          <Plus size={16} className="md:w-4.5 md:h-4.5" />
           Add Inventory
         </button>
       </div>
 
       {/* BLOOD GROUP SUMMARY */}
-      <div className="grid grid-cols-8 gap-8">
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 md:gap-8">
         {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
           <Unit key={bg} bg={bg} units={unitsByGroup[bg] || 0} />
         ))}

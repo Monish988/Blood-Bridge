@@ -2,11 +2,25 @@ import React, { useEffect, useState, useMemo } from "react";
 import SearchBar from "./SearchBar";
 import { CircleCheckBig, CircleX, Users } from "lucide-react";
 import DonorItem from "./DonorItem";
+import DonorDetailModal from "./DonorDetailModal";
 import api from "../../services/api.js";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Donor = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDonor, setSelectedDonor] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 🔒 Role-based access control - only hospitals can view donors
+  useEffect(() => {
+    if (user && user.role !== "hospital") {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const [search, setSearch] = useState("");
   const [group, setGroup] = useState("");
@@ -61,22 +75,22 @@ const Donor = () => {
   if (loading) return <p>Loading donors...</p>;
 
   return (
-    <div className="flex-1 min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-9 py-6 space-y-8">
+    <div className="flex-1 min-h-screen bg-gray-100 px-3 md:px-6 lg:px-9 py-4 md:py-6 space-y-6 md:space-y-8 page-load-animation">
       {/* TOP */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col gap-3 md:gap-0 md:flex-row md:justify-between">
         <div>
-          <h2 className="font-bold text-3xl">Donors</h2>
-          <p className="text-base text-gray-400">
+          <h2 className="font-bold text-2xl md:text-3xl">Donors</h2>
+          <p className="text-sm md:text-base text-gray-400">
             Manage registered blood donors
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-sm bg-green-200 py-1 px-2 rounded-lg text-green-600 flex gap-1 items-center">
-            <Users size={16} />
+        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+          <div className="text-xs md:text-sm bg-green-200 py-1 px-2 rounded-lg text-green-600 flex gap-1 items-center">
+            <Users size={14} className="md:w-4 md:h-4" />
             <p>{donors.length} total</p>
           </div>
-          <div className="text-sm bg-blue-200 py-1 px-2 rounded-lg text-blue-600">
+          <div className="text-xs md:text-sm bg-blue-200 py-1 px-2 rounded-lg text-blue-600">
             <p>{donors.filter((d) => d.available).length} Available</p>
           </div>
         </div>
@@ -93,7 +107,7 @@ const Donor = () => {
       />
 
       {/* TABLE HEADER */}
-      <div className="hidden lg:grid grid-cols-6 gap-4 font-semibold text-gray-500 border-b pb-2">
+      <div className="hidden lg:grid grid-cols-6 gap-4 font-semibold text-gray-500 border-b pb-2 text-sm">
         <p>Donor</p>
         <p>Blood Group</p>
         <p>Contact</p>
@@ -103,7 +117,7 @@ const Donor = () => {
       </div>
 
       {/* LIST */}
-      <div className="space-y-1 max-h-[90vh] overflow-y-auto">
+      <div className="space-y-2 md:space-y-1 max-h-[90vh] overflow-y-auto">
         {filteredDonors.map((d) => (
           <DonorItem
             key={d.id}
@@ -115,10 +129,21 @@ const Donor = () => {
             location={d.city}
             status={d.available ? "Available" : "Unavailable"}
             icon={d.available ? CircleCheckBig : CircleX}
+            onViewDetails={() => {
+              setSelectedDonor(d);
+              setIsModalOpen(true);
+            }}
             onToggle={() => toggleAvailability(d.id)}
           />
         ))}
       </div>
+
+      {/* Donor Detail Modal */}
+      <DonorDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        donor={selectedDonor}
+      />
     </div>
   );
 };

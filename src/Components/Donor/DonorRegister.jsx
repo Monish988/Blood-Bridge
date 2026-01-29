@@ -39,12 +39,12 @@ const DonorRegister = () => {
 
   if (submitted) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="bg-white p-8 rounded shadow text-center space-y-2">
-          <h2 className="text-xl font-bold text-green-600">
+      <div className="h-full flex items-center justify-center px-4 py-6">
+        <div className="bg-white p-6 md:p-8 rounded shadow text-center space-y-2 w-full sm:w-96">
+          <h2 className="text-lg md:text-xl font-bold text-green-600">
             Registration Submitted
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm md:text-base">
             Your donor profile is under verification.
           </p>
         </div>
@@ -53,20 +53,20 @@ const DonorRegister = () => {
   }
 
   return (
-    <div className="h-full flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow w-96 space-y-4">
-        <h2 className="text-xl font-bold">Register as Donor</h2>
+    <div className="h-full flex items-center justify-center px-4 py-6">
+      <div className="bg-white p-6 md:p-8 rounded shadow w-full sm:w-96 space-y-4">
+        <h2 className="text-lg md:text-xl font-bold">Register as Donor</h2>
 
         <input
           name="name"
           placeholder="Full Name"
-          className="border p-2 w-full"
+          className="border p-2 w-full text-sm md:text-base"
           onChange={handleChange}
         />
 
         <select
           name="gender"
-          className="border p-2 w-full"
+          className="border p-2 w-full text-sm md:text-base"
           onChange={handleChange}
         >
           <option>Male</option>
@@ -75,7 +75,7 @@ const DonorRegister = () => {
 
         <select
           name="bloodGroup"
-          className="border p-2 w-full"
+          className="border p-2 w-full text-sm md:text-base"
           onChange={handleChange}
         >
           {["O+","O-","A+","A-","B+","B-","AB+","AB-"].map(bg => (
@@ -86,21 +86,21 @@ const DonorRegister = () => {
         <input
           name="phone"
           placeholder="Phone"
-          className="border p-2 w-full"
+          className="border p-2 w-full text-sm md:text-base"
           onChange={handleChange}
         />
 
         <input
           name="city"
           placeholder="City"
-          className="border p-2 w-full"
+          className="border p-2 w-full text-sm md:text-base"
           onChange={handleChange}
         />
 
         <button
           onClick={submit}
           disabled={submitted}
-          className="bg-red-600 text-white py-2 w-full rounded"
+          className="bg-red-600 text-white py-2 w-full rounded text-sm md:text-base"
         >
           Submit for Verification
         </button>
