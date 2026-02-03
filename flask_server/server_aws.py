@@ -70,7 +70,7 @@ requests_table = dynamodb.Table(REQUESTS_TABLE)
 donation_history_table = dynamodb.Table(DONATION_HISTORY_TABLE)
 
 # SNS Topic ARN (Replace with your actual SNS Topic ARN)
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:BloodBank_Notifications'
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:484907486986:aws_capstone_topic'
 
 
 # ============================================================================
