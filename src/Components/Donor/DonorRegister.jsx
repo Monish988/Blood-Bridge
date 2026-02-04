@@ -25,7 +25,7 @@ const DonorRegister = () => {
   console.log("Token:", localStorage.getItem("token"));
 
   try {
-    await api.post("/api/donors/register", form);
+    await api.post("/donors/register", form);
     setSubmitted(true);
     localStorage.setItem("donorRegistered", "true");
     setTimeout(() => navigate("/dashboard"), 2500);

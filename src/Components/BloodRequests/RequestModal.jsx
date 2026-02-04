@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import api from "../../services/api";
 
@@ -15,25 +15,32 @@ const RequestModal = ({ open, onClose, onCreated }) => {
     reason: "",
   });
 
-  // fetch hospitals for dropdown
+  // Fetch hospitals when modal opens
   useEffect(() => {
     if (!open) return;
 
-    api.get("/api/hospitals").then((res) => {
+    api.get("/hospitals").then((res) => {
       setHospitals(res.data);
     });
   }, [open]);
 
-  // lock background scroll
+  // Lock background scroll
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
-    return () => (document.body.style.overflow = "auto");
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [open]);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const createRequest = async () => {
+    if (!form.hospitalId || !form.bloodGroup) {
+      return alert("Hospital and blood group are required");
+    }
+
     try {
       const payload = {
         hospitalId: Number(form.hospitalId),
@@ -45,16 +52,12 @@ const RequestModal = ({ open, onClose, onCreated }) => {
         reason: form.reason,
       };
 
-      const res = await api.post("/api/requests", payload);
+      const res = await api.post("/requests", payload);
 
-      // ✅ SAFETY CHECK
-      if (onCreated) {
-        onCreated(res.data);
-      }
-
+      onCreated?.(res.data);
       onClose();
     } catch (err) {
-      console.error("Failed to create request", err);
+      console.error(err);
       alert("Failed to create request");
     }
   };
@@ -105,7 +108,7 @@ const RequestModal = ({ open, onClose, onCreated }) => {
             </select>
           </div>
 
-          {/* Blood group + urgency */}
+          {/* Blood Group & Urgency */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium">
@@ -123,15 +126,13 @@ const RequestModal = ({ open, onClose, onCreated }) => {
                     <option key={bg} value={bg}>
                       {bg}
                     </option>
-                  ),
+                  )
                 )}
               </select>
             </div>
 
             <div>
-              <label className="text-sm font-medium">
-                Urgency <span className="text-red-500">*</span>
-              </label>
+              <label className="text-sm font-medium">Urgency</label>
               <select
                 name="urgency"
                 value={form.urgency}
@@ -146,60 +147,45 @@ const RequestModal = ({ open, onClose, onCreated }) => {
             </div>
           </div>
 
-          {/* Units + phone */}
+          {/* Units & Phone */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium">
-                Units Needed <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="units"
-                min="1"
-                value={form.units}
-                onChange={handleChange}
-                className="w-full border rounded p-2 mt-1"
-              />
-            </div>
+            <input
+              type="number"
+              name="units"
+              min="1"
+              value={form.units}
+              onChange={handleChange}
+              className="border rounded p-2"
+              placeholder="Units"
+            />
 
-            <div>
-              <label className="text-sm font-medium">Contact Phone</label>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                placeholder="Emergency contact"
-                className="w-full border rounded p-2 mt-1"
-              />
-            </div>
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="Emergency contact"
+              className="border rounded p-2"
+            />
           </div>
 
           {/* Patient */}
-          <div>
-            <label className="text-sm font-medium">
-              Patient Name (Optional)
-            </label>
-            <input
-              name="patientName"
-              value={form.patientName}
-              onChange={handleChange}
-              placeholder="Patient name"
-              className="w-full border rounded p-2 mt-1"
-            />
-          </div>
+          <input
+            name="patientName"
+            value={form.patientName}
+            onChange={handleChange}
+            placeholder="Patient name (optional)"
+            className="border rounded p-2 w-full"
+          />
 
           {/* Reason */}
-          <div>
-            <label className="text-sm font-medium">Reason</label>
-            <textarea
-              name="reason"
-              value={form.reason}
-              onChange={handleChange}
-              placeholder="Reason for blood request"
-              rows={3}
-              className="w-full border rounded p-2 mt-1"
-            />
-          </div>
+          <textarea
+            name="reason"
+            value={form.reason}
+            onChange={handleChange}
+            placeholder="Reason"
+            rows={3}
+            className="border rounded p-2 w-full"
+          />
         </div>
 
         {/* ACTIONS */}
@@ -209,7 +195,7 @@ const RequestModal = ({ open, onClose, onCreated }) => {
           </button>
           <button
             onClick={createRequest}
-            className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded"
+            className="bg-red-500 text-white px-5 py-2 rounded hover:bg-red-600"
           >
             Create Request
           </button>

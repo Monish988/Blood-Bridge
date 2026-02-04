@@ -1,7 +1,7 @@
 import { useState } from "react";
-import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { Mars, Venus, CircleChevronRight } from "lucide-react";
+import api from "../services/api";
+import { Mars, Venus } from "lucide-react";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -13,50 +13,49 @@ const SignUp = () => {
     email: "",
     phone: "",
     city: "",
-    role: "donor", // default
+    role: "donor",
     password: "",
     bloodGroup: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
+    if (!form.name || !form.email || !form.password) {
+      return alert("Please fill all required fields");
+    }
+
     try {
-      const res = await api.post("/api/auth/signup", form);
+      setLoading(true);
+      await api.post("/auth/signup", form);
       navigate("/login");
-    } catch (error) {
-      alert("Signup failed: " + (error.response?.data?.error || "Unknown error"));
+    } catch (err) {
+      alert(err.response?.data?.error || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white flex flex-col md:flex-row md:h-150 md:w-220 md:mt-80 mx-auto shadow-xl rounded-3xl overflow-hidden min-h-screen md:min-h-auto">
-      {/* LEFT */}
-      <div className="md:w-2/5 bg-red-400 flex flex-col items-center gap-6 md:gap-10 p-4 py-8 md:py-0 justify-center">
-        <img
-          className="rounded-full w-32 h-32 md:w-40 md:h-40"
-          src="https://images.unsplash.com/vector-1765556333702-1f3ee7241f8f?w=700"
-        />
-        <h3 className="font-extrabold text-2xl md:text-3xl text-white text-center">
-          Let's get you set up
-        </h3>
-        <CircleChevronRight color="#fff" size={52} className="hidden md:block" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="bg-white shadow-xl rounded-xl w-full max-w-lg p-6 space-y-4">
+        <h2 className="text-2xl font-bold text-center">Create Account</h2>
 
-      {/* RIGHT */}
-      <div className="flex flex-col gap-4 md:gap-6 mx-auto p-6 md:p-16 w-full md:flex-1">
         <input
           name="name"
+          value={form.name}
           placeholder="Name"
           onChange={handleChange}
-          className="border p-2 text-sm"
+          className="border p-2 w-full"
         />
 
         {/* Gender */}
         <div className="flex gap-6">
-          <label className="flex gap-2 items-center">
+          <label className="flex items-center gap-2">
             <Mars />
             <input
               type="radio"
@@ -67,53 +66,89 @@ const SignUp = () => {
             />
           </label>
 
-          <label className="flex gap-2 items-center">
+          <label className="flex items-center gap-2">
             <Venus />
             <input
               type="radio"
               name="gender"
               value="Female"
+              checked={form.gender === "Female"}
               onChange={handleChange}
             />
           </label>
         </div>
 
-        <input type="date" name="dob" onChange={handleChange} />
-        <input name="email" placeholder="Email" onChange={handleChange} />
-        <input name="phone" placeholder="Phone" onChange={handleChange} />
-        <input name="city" placeholder="City" onChange={handleChange} />
+        <input
+          type="date"
+          name="dob"
+          value={form.dob}
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+
+        <input
+          name="email"
+          value={form.email}
+          placeholder="Email"
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+
+        <input
+          name="phone"
+          value={form.phone}
+          placeholder="Phone"
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+
+        <input
+          name="city"
+          value={form.city}
+          placeholder="City"
+          onChange={handleChange}
+          className="border p-2 w-full"
+        />
+
         <input
           type="password"
           name="password"
+          value={form.password}
           placeholder="Password"
           onChange={handleChange}
+          className="border p-2 w-full"
         />
 
-        <select name="role" onChange={handleChange}>
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="border p-2 w-full"
+        >
           <option value="donor">Donor</option>
           <option value="hospital">Hospital</option>
         </select>
 
-        {/* Blood Group - Only for Donors */}
         {form.role === "donor" && (
-          <select name="bloodGroup" onChange={handleChange}>
+          <select
+            name="bloodGroup"
+            value={form.bloodGroup}
+            onChange={handleChange}
+            className="border p-2 w-full"
+          >
             <option value="">Select Blood Group</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
+            {["O+","O-","A+","A-","B+","B-","AB+","AB-"].map(bg => (
+              <option key={bg} value={bg}>{bg}</option>
+            ))}
           </select>
         )}
 
         <button
           onClick={handleSubmit}
-          className="bg-black text-white py-2 rounded text-sm md:text-base"
+          disabled={loading}
+          className="bg-black text-white py-2 rounded w-full disabled:opacity-60"
         >
-          Create Account
+          {loading ? "Creating..." : "Create Account"}
         </button>
       </div>
     </div>

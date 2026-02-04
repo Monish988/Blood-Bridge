@@ -31,7 +31,7 @@ const Donor = () => {
   useEffect(() => {
     const fetchDonors = async () => {
       try {
-        const res = await api.get("/api/donors");
+        const res = await api.get("/donors");
         setDonors(res.data);
       } catch (err) {
         console.error("Failed to fetch donors", err);
@@ -64,7 +64,7 @@ const Donor = () => {
 
   const toggleAvailability = async (id) => {
     try {
-      const res = await api.patch(`/api/donors/${id}/toggle`);
+      const res = await api.patch(`/donors/${id}/toggle`);
 
       setDonors((prev) => prev.map((d) => (d.id === id ? res.data : d)));
     } catch (err) {

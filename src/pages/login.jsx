@@ -1,11 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
 
   const [form, setForm] = useState({
@@ -13,64 +12,78 @@ const Login = () => {
     password: "",
   });
 
-  const submit = async () => {
-    try {
-      const res = await api.post("/api/auth/login", form);
+  const [loading, setLoading] = useState(false);
 
-      const userData = {
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    if (!form.email || !form.password) {
+      return alert("Email and password are required");
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await api.post("/auth/login", form);
+
+      login({
         name: res.data.name,
         role: res.data.role,
-        email: form.email,
-        token: res.data.token,
-        bloodGroup: res.data.bloodGroup,
+        email: res.data.email,
         phone: res.data.phone,
-      };
+        bloodGroup: res.data.bloodGroup,
+        token: res.data.token,
+      });
 
-      login(userData);
       navigate("/dashboard");
     } catch (err) {
       alert(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center px-4 py-6">
-      <div className="bg-white p-6 sm:p-8 rounded shadow w-full sm:w-80 space-y-4">
-        <h2 className="text-lg sm:text-xl font-bold">Login</h2>
+    <div className="h-screen flex items-center justify-center px-4">
+      <div className="bg-white p-6 rounded shadow w-full max-w-sm space-y-4">
+        <h2 className="text-xl font-bold text-center">Login</h2>
 
         <input
+          name="email"
+          value={form.email}
           placeholder="Email"
           className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
+          onChange={handleChange}
         />
 
         <input
           type="password"
+          name="password"
+          value={form.password}
           placeholder="Password"
           className="border p-2 w-full"
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
+          onChange={handleChange}
         />
 
         <button
-          onClick={submit}
-          className="bg-red-600 text-white py-2 w-full rounded text-sm sm:text-base"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="bg-red-600 text-white py-2 w-full rounded disabled:opacity-60"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
 
-        <div className="text-center text-xs sm:text-sm text-gray-600">
-          Don't have an account?{" "}
+        <p className="text-center text-sm text-gray-600">
+          Don&apos;t have an account?{" "}
           <button
             onClick={() => navigate("/signup")}
             className="text-red-600 font-semibold hover:underline"
           >
-            Sign up here
+            Sign up
           </button>
-        </div>
+        </p>
       </div>
     </div>
   );

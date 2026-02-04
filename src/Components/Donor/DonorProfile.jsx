@@ -16,7 +16,7 @@ const DonorProfile = () => {
     const fetchDonorProfile = async () => {
       try {
         if (user?.email) {
-          const res = await api.get(`/api/donors/profile/${user.email}`);
+          const res = await api.get(`/donors/profile/${user.email}`);
           setDonorData(res.data);
           setUnavailableDates(res.data.unavailableDates || []);
           setIsAvailable(res.data.available || false);
@@ -36,7 +36,7 @@ const DonorProfile = () => {
   const toggleAvailability = async () => {
     if (!donorData) return;
     try {
-      const res = await api.patch(`/api/donors/${donorData.id}/toggle`);
+      const res = await api.patch(`/donors/${donorData.id}/toggle`);
       setDonorData(res.data);
       setIsAvailable(res.data.available);
     } catch (err) {
@@ -60,7 +60,7 @@ const DonorProfile = () => {
     setUnavailableDates(updatedDates);
     
     try {
-      await api.patch(`/api/donors/${donorData.id}/unavailable-dates`, {
+      await api.patch(`/donors/${donorData.id}/unavailable-dates`, {
         unavailableDates: updatedDates
       });
     } catch (err) {
@@ -76,7 +76,7 @@ const DonorProfile = () => {
     setUnavailableDates(updatedDates);
     
     try {
-      await api.patch(`/api/donors/${donorData.id}/unavailable-dates`, {
+      await api.patch(`/donors/${donorData.id}/unavailable-dates`, {
         unavailableDates: updatedDates
       });
     } catch (err) {

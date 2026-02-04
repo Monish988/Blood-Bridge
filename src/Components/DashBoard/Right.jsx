@@ -22,8 +22,8 @@ const Right = () => {
 
 useEffect(() => {
   const fetchData = async () => {
-    const statsRes = await api.get("/api/stats");
-    const requestsRes = await api.get("/api/requests");
+    const statsRes = await api.get("/stats");
+    const requestsRes = await api.get("/requests");
 
     setStats(statsRes.data);
     setRequests(requestsRes.data);

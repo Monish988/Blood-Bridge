@@ -30,7 +30,7 @@ const Hospital = () => {
   };
   const updateHospital = async () => {
     try {
-      const res = await api.patch(`/api/hospitals/${editingHospital.id}`, form);
+      const res = await api.patch(`/hospitals/${editingHospital.id}`, form);
 
       setHospitals((prev) =>
         prev.map((h) => (h.id === editingHospital.id ? res.data : h)),
@@ -61,7 +61,7 @@ const Hospital = () => {
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
-        const res = await api.get("/api/hospitals");
+        const res = await api.get("/hospitals");
         setHospitals(res.data);
       } catch (err) {
         console.error("Failed to fetch hospitals", err);
@@ -79,7 +79,7 @@ const Hospital = () => {
 
   const deleteHospital = async (id) => {
     try {
-      await api.delete(`/api/hospitals/${id}`);
+      await api.delete(`/hospitals/${id}`);
       setHospitals((prev) => prev.filter((h) => h.id !== id));
     } catch (err) {
       console.error("Failed to delete hospital", err);
@@ -88,7 +88,7 @@ const Hospital = () => {
 
   const addHospital = async () => {
     try {
-      const res = await api.post("/api/hospitals", form);
+      const res = await api.post("/hospitals", form);
 
       // update UI instantly
       setHospitals((prev) => [...prev, res.data]);
@@ -119,7 +119,7 @@ const Hospital = () => {
   // toggle verification
   const toggleVerify = async (id) => {
     try {
-      const res = await api.patch(`/api/hospitals/${id}/toggle`);
+      const res = await api.patch(`/hospitals/${id}/toggle`);
       setHospitals((prev) => prev.map((h) => (h.id === id ? res.data : h)));
     } catch (err) {
       console.error("Failed to toggle hospital", err);

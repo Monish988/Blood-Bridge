@@ -21,12 +21,12 @@ const Inventory = () => {
   /* ---------------- FETCH DATA ---------------- */
 
   const fetchInventory = async () => {
-    const res = await api.get("/api/inventory");
+    const res = await api.get("/inventory");
     setInventory(res.data);
   };
 
   const fetchHospitals = async () => {
-    const res = await api.get("/api/hospitals");
+    const res = await api.get("/hospitals");
     setHospitals(res.data);
   };
 
@@ -85,7 +85,7 @@ const Inventory = () => {
 
       if (editingItem) {
         const res = await api.patch(
-          `/api/inventory/${editingItem.id}`,
+          `/inventory/${editingItem.id}`,
           payload,
         );
 
@@ -93,7 +93,7 @@ const Inventory = () => {
           prev.map((i) => (i.id === editingItem.id ? res.data : i)),
         );
       } else {
-        const res = await api.post("/api/inventory", payload);
+        const res = await api.post("/inventory", payload);
         setInventory((prev) => [...prev, res.data]);
       }
 
