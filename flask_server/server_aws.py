@@ -30,7 +30,7 @@ from ai_engine import (
 # ============================================================================
 
 AWS_REGION = "us-east-1"
-SNS_TOPIC_ARN = "arn:aws:sns:us-east-1:484907486986:aws_capstone_topic"
+SNS_TOPIC_ARN = "arn:aws:sns:us-east-1:890742572638:aws_capstone_topic:05efcb7f-c78e-444d-ad83-d472769c8c73"
 
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
 sns = boto3.client("sns", region_name=AWS_REGION)
