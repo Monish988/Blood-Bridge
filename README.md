@@ -1,107 +1,93 @@
+# Blood Bridge - Blood Bank Management System
 
-# 🩸 BLOOD BRIDGE – Blood Bank Management System
-
-> **Donate Blood, Save Lives**
-
-A full-stack blood donation management platform connecting blood donors, hospitals, and inventory systems with AI-powered blood compatibility matching.
-
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
-![React](https://img.shields.io/badge/React-19.0-61dafb?logo=react)
-![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask)
-![Python](https://img.shields.io/badge/Python-3.8+-3776ab?logo=python)
-![AWS](https://img.shields.io/badge/AWS-Ready-orange?logo=amazon-aws)
+A web application for managing blood donations, hospital inventories, and donor-request matching.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [AI Blood Compatibility Engine](#-ai-blood-compatibility-engine)
-- [Installation](#-installation)
-- [Running the Application](#-running-the-application)
-- [API Documentation](#-api-documentation)
-- [AWS Deployment](#-aws-deployment)
-- [Project Structure](#-project-structure)
-- [Default Test Accounts](#-default-test-accounts)
-- [Contributing](#-contributing)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Blood Compatibility Logic](#blood-compatibility-logic)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [AWS Deployment](#aws-deployment)
+- [Project Structure](#project-structure)
+- [Default Test Accounts](#default-test-accounts)
+- [Contributing](#contributing)
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔐 Authentication & User Management
-- JWT-based secure authentication
+### Authentication & User Management
+- JWT-based authentication
 - Role-based access control (Donors, Hospitals, Requestors)
-- User registration with blood group validation
-- Password encryption with Werkzeug
+- User registration
+- Password hashing with Werkzeug
 
-### 🩸 AI-Powered Blood Compatibility
-- **Automatic blood group compatibility checking**
-- **Smart donor-request matching with scoring**
-- Blood group validation using medical standards
-- Universal donor/receiver identification
-- Compatibility statistics and insights
+### Blood Compatibility
+- Blood group compatibility checking
+- Donor-request matching
+- Blood group validation
 
-### 👥 Donor Management
+### Donor Management
 - Donor registration and profile management
 - Availability tracking and scheduling
 - Unavailable dates management
 - Donation history tracking
-- Blood group compatibility information
-- Verified donor system
 
-### 🏥 Hospital Management
-- Hospital registration and verification
-- Blood inventory management with expiry tracking
-- Blood request creation with urgency levels
-- Automatic donor matching for requests
+### Hospital Management
+- Hospital registration
+- Blood inventory management
+- Blood request creation
+- Donor matching for requests
 - Request status tracking
 
-### 📊 Blood Requests
+### Blood Requests
 - Create requests with blood group, units, and urgency
-- Real-time compatible donor matching
-- AI-ranked donor recommendations
+- Donor matching
 - Request status management (Open, Accepted, Fulfilled)
-- SNS notifications for critical requests (AWS version)
+- SNS notifications for requests (AWS version)
 
-### 📈 Dashboard & Analytics
-- Real-time statistics
-- Active requests overview
+### Dashboard & Analytics
+- Statistics overview
+- Active requests tracking
 - Available donors count
 - Blood inventory tracking
-- Donation history visualization
+- Donation history
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React 19** - UI library
-- **Vite 7.3** - Build tool and dev server
-- **React Router 7** - Client-side routing
-- **Tailwind CSS 4.1** - Utility-first styling
-- **Axios** - HTTP client
-- **Lucide React** - Icon library
+- React
+- Vite
+- React Router
+- Tailwind CSS
+- Axios
+- Lucide React
 
 ### Backend
-- **Flask 3.1** - Python web framework
-- **Flask-CORS** - Cross-origin resource sharing
-- **Flask-JWT-Extended** - JWT authentication
-- **Werkzeug** - Password hashing
-- **Python 3.8+** - Backend language
+- Flask
+- Flask-CORS
+- Flask-JWT-Extended
+- Werkzeug
+- Python
 
-### AWS Services (Production)
-- **DynamoDB** - NoSQL database
-- **SNS** - Push notifications
-- **EC2 / Elastic Beanstalk** - Application hosting
-- **S3** - File storage (optional)
-- **CloudWatch** - Monitoring and logging
+### AWS Services
+- DynamoDB
+- SNS
+- EC2 / Elastic Beanstalk
+- S3
+- CloudWatch
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -118,7 +104,7 @@ A full-stack blood donation management platform connecting blood donors, hospita
 ┌────────────────────────┴────────────────────────────────────┐
 │               Flask Backend (JWT Auth)                      │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │           AI Blood Compatibility Engine              │  │
+│  │              Blood Compatibility Logic               │  │
 │  │  • Blood group validation                            │  │
 │  │  • Donor-request matching                            │  │
 │  │  • Compatibility scoring                             │  │
@@ -142,11 +128,11 @@ A full-stack blood donation management platform connecting blood donors, hospita
 
 ---
 
-## 🧠 AI Blood Compatibility Engine
+## Blood Compatibility Logic
 
 ### Blood Compatibility Matrix
 
-Our AI engine implements medical-grade blood compatibility rules:
+The system implements standard blood compatibility rules:
 
 | Recipient | Can Receive From |
 |-----------|------------------|
@@ -157,13 +143,13 @@ Our AI engine implements medical-grade blood compatibility rules:
 | **B-** | B-, O- |
 | **B+** | B+, B-, O+, O- |
 | **AB-** | A-, B-, AB-, O- |
-| **AB+** | All blood groups (Universal Receiver) |
+| **AB+** | All blood groups |
 
 **Special Cases:**
-- **O-** is the universal donor (can donate to all groups)
-- **AB+** is the universal receiver (can receive from all groups)
+- **O-** is the universal donor
+- **AB+** is the universal receiver
 
-### AI Features
+### Features
 
 1. **Compatibility Checking**
    ```python
@@ -171,31 +157,28 @@ Our AI engine implements medical-grade blood compatibility rules:
    is_compatible("A+", "O+")  # Returns: False
    ```
 
-2. **Smart Donor Matching**
-   - Exact blood group matches get highest score (100)
-   - Compatible matches scored by medical preference (70-85)
-   - Available donors only
-   - Sorted by compatibility score
+2. **Donor Matching**
+   - Exact blood group matches are prioritized
+   - Compatible matches are scored based on preference
+   - Filters by available donors
 
 3. **Donation Statistics**
-   - Shows how many blood groups a donor can help
+   - Shows how many blood groups a donor can donate to
    - Identifies universal donors
-   - Marks rare blood groups (A-, B-, AB-, O-)
    - Calculates demand level
 
 4. **Request Enhancement**
-   - Automatic compatible donor discovery
-   - Real-time donor count for each request
-   - Compatibility information display
+   - Finds compatible donors
+   - Shows donor count for each request
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
-- **Node.js 18+** and npm
-- **Python 3.8+** and pip
-- **Git**
+- Node.js
+- Python
+- Git
 
 ### 1. Clone the Repository
 
@@ -237,7 +220,7 @@ The backend will be available at `http://127.0.0.1:5000/`
 
 ---
 
-## 🎮 Running the Application
+## Running the Application
 
 ### Development Mode
 
@@ -271,7 +254,7 @@ gunicorn server:app
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Base URL
 - **Local:** `http://localhost:5000`
@@ -341,7 +324,7 @@ Add inventory item
 Get all requests with matched donors
 
 #### POST `/api/requests`
-Create blood request with automatic donor matching
+Create blood request with donor matching
 
 #### PATCH `/api/requests/<id>`
 Update request status
@@ -355,9 +338,9 @@ For complete API documentation, see [flask_server/README.md](flask_server/README
 
 ---
 
-## ☁️ AWS Deployment
+## AWS Deployment
 
-This application is AWS-ready with full DynamoDB and SNS integration!
+The application supports AWS deployment with DynamoDB and SNS.
 
 ### Quick Deploy
 
@@ -383,7 +366,7 @@ For detailed AWS deployment instructions, see [flask_server/AWS_DEPLOYMENT_GUIDE
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 BB/
@@ -402,15 +385,14 @@ BB/
 ├── flask_server/               # Backend server
 │   ├── server.py               # Local development server
 │   ├── server_aws.py           # AWS production server
-│   ├── ai_engine.py            # Blood compatibility AI
+│   ├── ai_engine.py            # Blood compatibility logic
 │   ├── create_dynamodb_tables.py  # AWS setup script
-│   ├── test_ai_engine.py       # AI engine tests
+│   ├── test_ai_engine.py       # Engine tests
 │   ├── requirements.txt        # Local dependencies
 │   ├── requirements_aws.txt    # AWS dependencies
 │   ├── README.md               # Backend documentation
 │   └── AWS_DEPLOYMENT_GUIDE.md # AWS setup guide
 ├── public/                     # Static assets
-├── .github/                    # GitHub configuration
 ├── package.json                # Frontend dependencies
 ├── vite.config.js              # Vite configuration
 ├── tailwind.config.js          # Tailwind CSS config
@@ -419,7 +401,7 @@ BB/
 
 ---
 
-## 👤 Default Test Accounts
+## Default Test Accounts
 
 ### Hospital Account
 - **Email:** `hospital@gmail.com`
@@ -434,9 +416,9 @@ BB/
 
 ---
 
-## 🧪 Testing
+## Testing
 
-### Test AI Engine
+### Test Engine
 ```bash
 cd flask_server
 python test_ai_engine.py
@@ -454,11 +436,11 @@ npm run lint
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
 - JWT-based authentication
 - Password hashing with Werkzeug
-- CORS protection
+- CORS configuration
 - Role-based access control
 - Input validation
 - Blood group validation
@@ -466,34 +448,32 @@ npm run lint
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create a feature branch (`git checkout -b feature/name`)
+3. Commit your changes (`git commit -m 'Add feature'`)
+4. Push to the branch (`git push origin feature/name`)
 5. Open a Pull Request
 
 ---
 
-## 📝 License
+## License
 
-Copyright © 2026 Blood Bank Development Team. All rights reserved.
+Copyright 2026 Blood Bank Development Team.
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Server won't start
-- Verify all dependencies are installed
+- Verify dependencies are installed
 - Check if port 5000/5173 is already in use
 - Ensure Python version is 3.8+
 
 ### Authentication issues
-- Verify JWT token is being sent in Authorization header
-- Check token hasn't expired
+- Verify JWT token is sent in the Authorization header
+- Check if the token has expired
 - Ensure user role matches endpoint requirements
 
 ### Blood group errors
@@ -506,36 +486,13 @@ For more help, check:
 
 ---
 
-## 📞 Support
+## Roadmap
 
-For issues or questions:
-- Check the documentation
-- Review CloudWatch logs (AWS deployment)
-- Contact the development team
-
----
-
-## 🎯 Roadmap
-
-- [ ] Mobile app (React Native)
-- [ ] Real-time notifications (WebSockets)
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] SMS notifications
-- [ ] Blood donation appointment scheduling
-- [ ] Integration with hospital management systems
-- [ ] Machine learning for demand prediction
-
----
-
-## 🌟 Acknowledgments
-
-- Built with React, Flask, and AWS
-- Inspired by the need to save lives through efficient blood donation management
-- Special thanks to all contributors and blood donors worldwide
-
----
-
-**Made with ❤️ for saving lives**
-
-**Version 2.0.0** | January 2026
+- Mobile app (React Native)
+- Real-time notifications (WebSockets)
+- Analytics dashboard
+- Multi-language support
+- SMS notifications
+- Appointment scheduling
+- Integration with hospital management systems
+- Demand prediction
